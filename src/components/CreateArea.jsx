@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
+import AddIcon from '@material-ui/icons/Add';
+import Fab from '@material-ui/core/Fab';
+import Zoom from '@material-ui/core/Zoom';
 
 export default function CreateArea(props) {
   const [note, setNote] = useState({
     title: '',
     content: '',
   });
+
+  const [isContentClicked, setIsContentClicked] = useState(false);
 
   function handleChange(event) {
     const { value, name } = event.target;
@@ -17,31 +22,63 @@ export default function CreateArea(props) {
   }
 
   function handleSubmit(event) {
-    event.preventDefault();
-    props.onAdd(note);
-    setNote({
-      title: '',
-      content: '',
-    });
+    if (note.title !== '' && note.content !== '') {
+      event.preventDefault();
+      props.onAdd(note);
+      setNote({
+        title: '',
+        content: '',
+      });
+    } else {
+      alert('Cannot add an empty note.');
+      event.preventDefault();
+    }
+  }
+
+  function handleContent() {
+    setIsContentClicked(true);
   }
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <input
-          onChange={handleChange}
-          value={note.title}
-          name="title"
-          placeholder="Title"
-        />
+      <form
+        className={
+          note.title !== '' && note.content !== ''
+            ? 'create-note active'
+            : 'create-note'
+        }
+        onSubmit={handleSubmit}
+      >
+        {isContentClicked && (
+          <input
+            onChange={handleChange}
+            value={note.title}
+            name="title"
+            placeholder="Title"
+          />
+        )}
+
         <textarea
+          onClick={handleContent}
           onChange={handleChange}
           name="content"
           value={note.content}
           placeholder="Take a note..."
-          rows="3"
+          rows={isContentClicked ? '3' : '1'}
         />
-        <button type="submit">Add</button>
+        <Zoom in={isContentClicked}>
+          <Fab
+            sx={{
+              ':hover': {
+                bgcolor: 'red',
+                color: 'black',
+              },
+            }}
+            type="submit"
+          >
+            <AddIcon />
+          </Fab>
+        </Zoom>
       </form>
     </div>
   );
